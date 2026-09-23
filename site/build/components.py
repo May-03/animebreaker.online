@@ -24,6 +24,18 @@ def abs_url(path):
     return f"{scheme}://{d}{path}"
 
 
+def site_url(path):
+    """产物文件路径 → 站点 URL,统一为目录式:
+    index.html→/, codes/index.html→/codes/;非 index 文件(如 404.html)保持文件式。
+    canonical / sitemap / hreflang / og:url / JSON-LD 与站内导航同为目录式,避免 URL 双形态。"""
+    p = path.strip("/")
+    if p == "index.html":
+        return "/"
+    if p.endswith("/index.html"):
+        return "/" + p[: -len("/index.html")].rstrip("/") + "/"
+    return "/" + p
+
+
 def slugify(text):
     s = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     return s or "section"
@@ -35,7 +47,7 @@ def lang_url(lang_key, path):
 
 
 def hreflang_links(lang, path, is_home=False):
-    out = [f'<link rel="alternate" hreflang="{LANGS[l]["hreflang"]}" href="{lang_url(l, _switcher_path(path))}">' for l in LANG_ORDER]
+    out = [f'<link rel="alternate" hreflang="{LANGS[l]["hreflang"]}" href="{lang_url(l, _switcher_path(path, lang))}">' for l in LANG_ORDER]
     if is_home and lang == "en":
         out.append(f'<link rel="alternate" hreflang="x-default" href="{abs_url(path)}">')
     return "\n".join(out)
@@ -130,8 +142,8 @@ def render_breadcrumbs(crumbs, label_home="Home", label_sep="/"):
 # ---------- 导航 ----------
 
 def _nav_active(nav, path):
-    """返回 (home_active, col_index_active or None, item_active or None)。"""
-    if path in ("/", "/zh/", "/ja/"):
+    """返回 (home_active, col_index_active or None, item_active or None)。path 为目录式站点 URL。"""
+    if path == nav["home"][1]:
         return True, None, None
     for ci, (_, items) in enumerate(nav["cols"]):
         for label, _d, url in items:
@@ -161,17 +173,27 @@ def _desktop_nav(lang, path, nav):
 
 
 
-def _switcher_path(path):
-    """语言切换器使用的路径;404 等无语言版本的页面回退到语言首页。"""
-    return "/" if path in ("/404.html", "404.html") else path
+def site_path(lang, path):
+    """语言 + 产物相对路径 → 完整站点路径:/pt/ + codes/index.html → /pt/codes/。"""
+    return "/" + LANGS[lang]["dir"] + site_url(path).lstrip("/")
+
+
+def _switcher_path(path, lang):
+    """语言切换器使用的路径:完整站点路径 → 语言根相对(404 无语言版本,回退语言首页)。"""
+    if path in ("/404.html", "404.html"):
+        return "/"
+    d = LANGS[lang]["dir"]
+    if d and path.startswith("/" + d):
+        return "/" + path[len(d):].lstrip("/")
+    return path
 
 def _lang_switcher_desktop(lang, path):
     entries = []
     for l in LANG_ORDER:
         if l == lang:
-            entries.append(f'<a href="{lang_url(l, _switcher_path(path))}" class="current" aria-current="page">{LANGS[l]["name"]}</a>')
+            entries.append(f'<a href="{lang_url(l, _switcher_path(path, lang))}" class="current" aria-current="page">{LANGS[l]["name"]}</a>')
         else:
-            entries.append(f'<a href="{lang_url(l, _switcher_path(path))}">{LANGS[l]["name"]}</a>')
+            entries.append(f'<a href="{lang_url(l, _switcher_path(path, lang))}">{LANGS[l]["name"]}</a>')
     globe = ('<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
              '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/></svg>')
     caret = '<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5l5 5 5-5"/></svg>'
@@ -192,7 +214,7 @@ def _mobile_nav(lang, path, nav):
         if l == lang:
             lang_entries.append(f'<li><span aria-current="true">{LANGS[l]["name"]}</span></li>')
         else:
-            lang_entries.append(f'<li><a href="{lang_url(l, _switcher_path(path))}">{LANGS[l]["name"]}</a></li>')
+            lang_entries.append(f'<li><a href="{lang_url(l, _switcher_path(path, lang))}">{LANGS[l]["name"]}</a></li>')
     groups.append(
         f'<details class="mobile-group"><summary><span>Language</span>'
         f'<svg viewBox="0 0 12 12" width="13" height="13" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary><ul>{"".join(lang_entries)}</ul></details>')
@@ -277,13 +299,14 @@ def build_jsonld(page, lang, url):
     return '{"@context":"https://schema.org","@graph":[' + ",".join(graph) + "]}"
 
 
-def render_head(lang, path, page, rel, is_home=False, include_alternate=True):
-    url = "/" + LANGS[lang]["dir"] + page["path"].lstrip("/")
+def render_head(lang, path, page, rel, is_home=False, include_alternate=True, noindex=False):
+    url = "/" + LANGS[lang]["dir"] + site_url(page["path"]).lstrip("/")
     title = page["title"]
     meta = page["meta"]
     og_type = "website" if is_home else "article"
     jsonld = build_jsonld(page, lang, url)
-    alt_block = hreflang_links(lang, "/" + page["path"].lstrip("/"), is_home) if include_alternate else ""
+    alt_block = hreflang_links(lang, site_url(page["path"]), is_home) if include_alternate else ""
+    robots_meta = '<meta name="robots" content="noindex">\n' if noindex else ""
     _ga = config.SITE.get("ga_id", "")
     if _ga and not _ga.startswith("G-XX"):   # 占位(未配置/示例值)时不输出 gtag
         ga_block = f"""<!-- Google tag (gtag.js) -->
@@ -306,7 +329,7 @@ def render_head(lang, path, page, rel, is_home=False, include_alternate=True):
 <link rel="icon" type="image/svg+xml" href="{rel}favicon.svg">
 <link rel="icon" href="{rel}favicon.ico" sizes="any">
 <meta name="description" content="{meta}">
-<title>{title}</title>
+{robots_meta}<title>{title}</title>
 <link rel="canonical" href="{abs_url(url)}">
 {alt_block}
 <meta property="og:type" content="{og_type}">

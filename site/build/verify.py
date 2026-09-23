@@ -53,11 +53,13 @@ def main():
         check(h.count("<title>") == 1, f"{rel}: title != 1")
         check(h.count('name="description"') == 1, f"{rel}: meta description != 1")
 
-        # canonical 自指
+        # canonical 自指(目录式,与生成器 site_url 一致)
         can = re.search(r'<link rel="canonical" href="([^"]+)"', h)
         check(can is not None, f"{rel}: 缺 canonical")
         if can:
-            check(can.group(1).endswith("/" + rel), f"{rel}: canonical 非自指 {can.group(1)}")
+            exp = "/" if rel == "index.html" else "/" + rel[: -len("index.html")]
+            ok = SITE_DOMAIN in can.group(1) and can.group(1).rstrip("/").endswith(exp.rstrip("/"))
+            check(ok, f"{rel}: canonical 非自指 {can.group(1)}")
 
         # hreflang:en/zh-CN/ja 三条且目标存在;x-default 仅英文首页
         hrefs = dict(re.findall(r'<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"', h))

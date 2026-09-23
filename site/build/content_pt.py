@@ -17,10 +17,8 @@ PAGES = {}
 # ---------- 1. Home ----------
 PAGES["index.html"] = {
     "path": "index.html", "home": True,
-    "title": G + " Roblox Wiki – Códigos, Guias e Sistemas (" + LC + ")",
-    "meta": ("Wiki e guia não oficial de " + G + " no Roblox: o loop oficial (Energia, Cartas, "
-             "Companions, Avatares, Armas, Rank Up, Melhorias, Raids), status dos códigos, guia para "
-             "iniciantes e de progressão. Fatos rotulados, nunca inventados."),
+    "title": "Anime Breaker Roblox: Códigos, Guias e Wiki",
+    "meta": "Wiki e guia não oficial de Anime Breaker no Roblox: o loop oficial, status dos códigos, guias para iniciantes. Fatos rotulados, nunca inventados.",
     "pill": "Wiki de Fãs · Verificação Primeiro",
     "tagline": "A referência de " + G + " que separa fato verificado de boato",
     "intro": ("Recurso de fãs, não afiliado a " + DEV + ". O título oficial no Roblox aparece hoje como "
@@ -138,9 +136,8 @@ PAGES["index.html"] = {
 # ---------- 2. Wiki hub ----------
 PAGES["wiki/index.html"] = {
     "path": "wiki/index.html",
-    "title": G + " Wiki – Cartas, Companions, Avatares, Armas e Sistemas",
-    "meta": ("Hub da wiki de " + G + ": Cartas, Companions, Avatares, Armas, Acessórios, Amuletos, Recursos e "
-             "Mundos explicados com rótulos de verificação e data de checagem."),
+    "title": "Anime Breaker Wiki – Cartas, Companions e Avatares",
+    "meta": "Hub da wiki de Anime Breaker: Cartas, Companions, Avatares, Armas, Acessórios, Amuletos, Recursos e Mundos, com rótulos de verificação.",
     "pill": "Wiki", "h1": G + " Wiki",
     "lead": ("A camada de referência do site: cada sistema documentado, o que ele faz no loop e o quanto "
              "confiamos nele."),
@@ -190,7 +187,7 @@ PAGES["wiki/index.html"] = {
 # ---------- 3. Guides hub ----------
 PAGES["guides/index.html"] = {
     "path": "guides/index.html",
-    "title": G + " Guias – Iniciante, Energia, Rank, Melhorias, Raids e F2P",
+    "title": "Anime Breaker Guias: Iniciante, Energia e Raids",
     "meta": ("Todos os guias de " + G + ": iniciante, progressão, Energia, Rank Up, Melhorias, Bosses Secretos, "
              "Raids, Trial e a rota F2P."),
     "pill": "Guias", "h1": G + " Guias",
@@ -236,8 +233,7 @@ PAGES["guides/index.html"] = {
 PAGES["codes/index.html"] = {
     "path": "codes/index.html",
     "title": G + " Códigos (Setembro 2026) – Ativos e Expirados",
-    "meta": ("Status dos códigos de " + G + " em " + LC + ": códigos de marco e de atualização relatados ativos, "
-             "tratamento de expirados, como resgatar e por que esta página é datada."),
+    "meta": "Status dos códigos de Anime Breaker em setembro de 2026: códigos de marco e de atualização relatados ativos, como resgatar e lidar com expirados.",
     "pill": "Ao vivo", "h1": G + " Códigos",
     "lead": ("Uma página datada, não eterna. Cada código aqui está relatado ativo por fonte datada ou tratado como "
              "expirado — e todos pedem que você teste em jogo."),
@@ -311,7 +307,7 @@ PAGES["codes/index.html"] = {
 # ---------- 5. Updates ----------
 PAGES["updates/index.html"] = {
     "path": "updates/index.html",
-    "title": G + " Atualizações – Status CLASS TREE e Mudanças (" + LC + ")",
+    "title": "Anime Breaker Atualizações – Status CLASS TREE e Mudanças",
     "meta": ("Hub de atualizações de " + G + ": o status atual do título CLASS TREE, o que está verificado na "
              "página oficial e o que é apenas relatado."),
     "pill": "Ao vivo", "h1": G + " Atualizações",
@@ -362,7 +358,7 @@ PAGES["updates/index.html"] = {
 # ---------- 6. Beginner Guide ----------
 PAGES["guides/beginner-guide/index.html"] = {
     "path": "guides/beginner-guide/index.html",
-    "title": G + " Guia para Iniciantes – Como Jogar, Energia e Cartas",
+    "title": "Anime Breaker Guia para Iniciantes – Como Jogar",
     "meta": ("Como jogar " + G + " no Roblox: o loop oficial movido a Energia explicado passo a passo, sua "
              "primeira sessão e quais erros custam mais no começo."),
     "pill": "Guias", "h1": G + " Guia para Iniciantes",
@@ -415,7 +411,7 @@ PAGES["guides/beginner-guide/index.html"] = {
 # ---------- 7. Progression ----------
 PAGES["guides/progression/index.html"] = {
     "path": "guides/progression/index.html",
-    "title": G + " Guia de Progressão – Gargalos do Início, Meio e Fim",
+    "title": "Anime Breaker Guia de Progressão – Início ao Fim",
     "meta": ("Guia de progressão de " + G + " como mapa de gargalos: o que limita no começo, no meio e no fim, e "
              "qual decisão move a parede."),
     "pill": "Guias", "h1": G + " Guia de Progressão",
@@ -578,9 +574,8 @@ PAGES["guides/rank-up/index.html"] = {
 # ---------- 10. Upgrades ----------
 PAGES["guides/upgrades/index.html"] = {
     "path": "guides/upgrades/index.html",
-    "title": G + " Melhorias – Framework de Prioridade (Melhores Upgrades)",
-    "meta": ("Melhores upgrades em " + G + " como framework de priorização em vez de tier list congelada: o que "
-             "alimentar primeiro, o que deixar parado e por que a ordem muda."),
+    "title": "Anime Breaker Melhorias – Framework de Prioridades",
+    "meta": "Melhores upgrades em Anime Breaker como framework de priorização, sem tier list congelada: o que alimentar primeiro e por que a ordem muda.",
     "pill": "Guias", "h1": G + " Melhorias",
     "lead": ("Um framework de prioridade aplicável à sua conta agora — porque a 'melhor melhoria' num jogo de Roblox "
              "é um alvo móvel."),
@@ -681,7 +676,7 @@ PAGES["wiki/cards/index.html"] = {
 # ---------- 12. Companions ----------
 PAGES["wiki/companions/index.html"] = {
     "path": "wiki/companions/index.html",
-    "title": G + " Companions – Como Conseguir e Companion vs Avatar",
+    "title": "Anime Breaker Companions – Como Conseguir",
     "meta": ("Companions em " + G + ": como o loop oficial os produz via Cartas, como são usados em combate e como "
              "diferem dos Avatares."),
     "pill": "Wiki", "h1": G + " Companions",
@@ -878,7 +873,7 @@ PAGES["guides/secret-boss-locations/index.html"] = {
 # ---------- 16. Accessories ----------
 PAGES["wiki/accessories/index.html"] = {
     "path": "wiki/accessories/index.html",
-    "title": G + " Acessórios – Drops de Boss e Decisões de Equipamento",
+    "title": "Anime Breaker Acessórios – Drops de Boss",
     "meta": ("Acessórios em " + G + ": a camada de equipamento vinda de bosses, como decidir o que manter e "
              "melhorar, e por que taxas e status ficam fora."),
     "pill": "Wiki", "h1": G + " Acessórios",
@@ -926,7 +921,7 @@ PAGES["wiki/accessories/index.html"] = {
 # ---------- 17. Raids ----------
 PAGES["guides/raids/index.html"] = {
     "path": "guides/raids/index.html",
-    "title": G + " Raids – Acesso, Ondas, Recompensas e Onde Gastar",
+    "title": "Anime Breaker Raids – Acesso, Ondas e Recompensas",
     "meta": ("Raids em " + G + ": o nível de desafio do loop oficial. Acesso e estrutura de ondas, como tratar "
              "recompensas e por que custos de ticket ficam fora."),
     "pill": "Guias", "h1": G + " Raids",
@@ -972,7 +967,7 @@ PAGES["guides/raids/index.html"] = {
 # ---------- 18. Trial ----------
 PAGES["guides/trial/index.html"] = {
     "path": "guides/trial/index.html",
-    "title": G + " Trial (Corredor) – Loop, Melhorias e Recompensas",
+    "title": "Anime Breaker Trial (Corredor) – Loop e Recompensas",
     "meta": ("O loop de desafio Trial / corredor em " + G + ": como funciona a estrutura da corrida, para que serve "
              "e como transformar as recompensas em progressão."),
     "pill": "Guias", "h1": G + " Trial",
@@ -1022,7 +1017,7 @@ PAGES["guides/trial/index.html"] = {
 # ---------- 19. Amulets ----------
 PAGES["wiki/amulets/index.html"] = {
     "path": "wiki/amulets/index.html",
-    "title": G + " Amuletos – Aquisição, Uso e Decisões de Gargalo",
+    "title": "Anime Breaker Amuletos – Aquisição e Uso",
     "meta": ("Amuletos em " + G + ": o slot de equipamento relatado na fase de gargalo — para que serve, como "
              "decidir e por que nenhum nome ou status é publicado."),
     "pill": "Wiki", "h1": G + " Amuletos",
@@ -1169,8 +1164,7 @@ PAGES["wiki/worlds/index.html"] = {
 PAGES["guides/f2p/index.html"] = {
     "path": "guides/f2p/index.html",
     "title": G + " Guia F2P – Progredindo sem Robux",
-    "meta": ("Guia F2P de " + G + ": como progredir sem gastar Robux, onde recompensas grátis realmente ajudam e "
-             "quais hábitos decidem se uma conta gratuita continua andando."),
+    "meta": "Guia F2P de Anime Breaker: progredir sem gastar Robux, onde recompensas grátis ajudam de verdade e quais hábitos mantêm a conta avançando.",
     "pill": "Guias", "h1": G + " Guia F2P",
     "lead": ("Contas gratuitas não são contas lentas — são contas que não podem se dar ao luxo de uma ordem de gasto "
              "ruim."),

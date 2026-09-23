@@ -7,7 +7,7 @@ import shutil
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config
-from components import (abs_url, render_head, render_header, render_footer,
+from components import (abs_url, site_url, site_path, render_head, render_header, render_footer,
                         render_blocks, render_faq, render_related,
                         render_breadcrumbs, hero_section, gallery_section,
                         NAV_SCRIPT)
@@ -95,7 +95,7 @@ def render_page(lang, key, page):
     nav = config.NAV[lang]
     is_home = bool(page.get("home"))
     rel = _rel_prefix(lang, page["path"])
-    path_url = "/" + page["path"].lstrip("/")
+    path_url = site_path(lang, page["path"])  # 完整站点路径(含语言前缀),供导航高亮/语言切换器
     head = render_head(lang, path_url, page, rel, is_home)
     body = render_home(lang, page) if is_home else render_article(lang, page)
     return f"{head}<a href=\"#main\" class=\"skip-link\">Skip to content</a>\n{render_header(lang, path_url, nav, rel)}\n{body}\n{NAV_SCRIPT}\n</body>\n</html>\n"
@@ -147,8 +147,8 @@ def main():
             html = render_page(lang, key, page)
             with open(out_path, "w", encoding="utf-8") as f:
                 f.write(html)
-            # 站点 URL(语言根相对)
-            url = "/" + lang_dirs[lang] + page["path"].lstrip("/")
+            # 站点 URL(语言根相对,目录式)
+            url = "/" + lang_dirs[lang] + site_url(page["path"]).lstrip("/")
             sitemap_urls.append(url)
             print("wrote", out_path)
     # sitemap
@@ -180,7 +180,7 @@ def _render_404():
         "path": "404.html",
         "title": "Page not found – " + config.SITE["name"] + " Wiki",
         "meta": "Page not found on the " + config.SITE["name"] + " Wiki.",
-    }, "", is_home=False, include_alternate=False)
+    }, "", is_home=False, include_alternate=False, noindex=True)
     links = "".join(f'<li><a href="{abs_url(p)}">{t}</a></li>' for t, p in [
         ("Home", "/"), ("Wiki Hub", "/wiki/"), ("Guides", "/guides/"),
         ("Codes", "/codes/"), ("Updates", "/updates/"), ("Español", "/es/")])

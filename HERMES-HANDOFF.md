@@ -71,6 +71,8 @@ python3 /Users/hym/谷歌游戏网站/scripts/verify_vercel_release.py \
 
 ## 6. 已知约定(fifth-gen 模板)
 
+- URL 规范(2026-09-23 修复):**全站统一目录式** — canonical / sitemap / hreflang / og:url / JSON-LD 均输出 `/codes/` 形态(与站内导航一致),仅 404.html 保持文件式;`build/components.py::site_url/site_path` 是唯一 URL 构造入口,改 URL 形态改这里。
+- 导航当前页高亮按完整站点路径(含 pt/ es/ 前缀)匹配 `config.NAV` 的 url;语言切换器剥离当前语言前缀后互链。
 - hero 背景:components.py 输出 hero-bg.jpg 实图 + `.hero-bg` 半透明渐变层(alpha 保留,可透出真实截图);
   styles.css :root 已换肤为实测官方截图色(火焰橙 #b8461c / 夜空蓝底 / 金沙点缀)
 - 无旧游戏名/域名硬编码;占位符零残留(verify 覆盖)
