@@ -15,7 +15,7 @@ SITE = {
     "slug": "anime-breaker",
     "developer": "HF x Anime Breaker", # 官方 Roblox 体验页开发者/发布者
     "domain": "animebreaker.online",   # 正式域名(本地预览时被 --domain 覆盖)
-    "ga_id": "",                       # GA4 Measurement ID(上线部署时后补,留空则不输出 gtag)
+    "ga_id": "G-WVB8QZW41V",             # GA4 Measurement ID(新站合集 553862240,2026-09-23 建流)
     "pub_date": "2026-09-23",          # 全站发布/更新基准日期:sitemap lastmod + JSON-LD datePublished/dateModified
     "cta_url": "https://www.roblox.com/games/109928390521457/",  # 官方 Roblox 体验页(已核实存在)
 }
