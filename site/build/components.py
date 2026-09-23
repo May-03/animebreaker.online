@@ -142,30 +142,40 @@ def render_breadcrumbs(crumbs, label_home="Home", label_sep="/"):
 # ---------- 导航 ----------
 
 def _nav_active(nav, path):
-    """返回 (home_active, col_index_active or None, item_active or None)。path 为目录式站点 URL。"""
+    """返回 (home_active, col_index_active or None, item_label_active or None)。path 为目录式站点 URL。
+    深层页(不在顶层导航条目中,如 /wiki/accessories/、/guides/f2p/)按路径第一段回退匹配所在栏目。"""
     if path == nav["home"][1]:
         return True, None, None
+    seg1 = path.strip("/").split("/")[0] if path.strip("/") else ""
+    best = None
     for ci, (_, items) in enumerate(nav["cols"]):
         for label, _d, url in items:
             if path == url:
                 return False, ci, label
+            u1 = url.strip("/").split("/")[0] if url.strip("/") else ""
+            if seg1 and u1 == seg1 and path.startswith("/" + seg1 + "/"):
+                best = (ci, label)
+    if best:
+        return False, best[0], None
     return False, None, None
 
 
 def _desktop_nav(lang, path, nav):
     home_label, home_url = nav["home"]
-    home_active, col_active, _item = _nav_active(nav, path)
+    home_active, col_active, item_active = _nav_active(nav, path)
     home_cls = ' class="nav-link active" aria-current="page"' if home_active else ' class="nav-link"'
     lis = [f'<li class="nav-item"><a href="{abs_url(home_url)}"{home_cls}>{home_label}</a></li>']
     for ci, (title, items) in enumerate(nav["cols"]):
         first_url = items[0][2]
         cls = "nav-link has-panel" + (" active" if col_active == ci else "")
+        arr = ' aria-current="page"' if col_active == ci else ""
         lis.append(
-            f'<li class="nav-item nav-item-dd"><a href="{abs_url(first_url)}" class="{cls}" aria-haspopup="true">{title}'
+            f'<li class="nav-item nav-item-dd"><a href="{abs_url(first_url)}" class="{cls}" aria-haspopup="true"{arr}>{title}'
             f'<svg class="caret" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>'
             f'<div class="nav-panel" role="menu"><div class="panel-inner"><ul class="panel-list">')
         for label, desc, url in items:
-            lis.append(f'<li><a href="{abs_url(url)}" class="panel-link" role="menuitem"><span class="panel-label">{label}</span><span class="panel-desc">{desc}</span></a></li>')
+            item_ar = ' aria-current="page"' if item_active == label else ""
+            lis.append(f'<li><a href="{abs_url(url)}" class="panel-link" role="menuitem"{item_ar}><span class="panel-label">{label}</span><span class="panel-desc">{desc}</span></a></li>')
         lis.append(f'<li><a href="{abs_url(first_url)}" class="panel-link panel-link-all" role="menuitem"><span class="panel-label">View all</span></a></li>')
         lis.append("</ul></div></div></li>")
     lis.append(_lang_switcher_desktop(lang, path))
@@ -288,7 +298,7 @@ def build_jsonld(page, lang, url):
             '{"@type":"Article","headline":' + __j(page["title"]) +
             ',"url":' + __j(abs_url(url)) +
             ',"inLanguage":' + __j(LANGS[lang]["hreflang"]) +
-            ',"datePublished":"2026-08-23","dateModified":"2026-08-23"'
+            ',"datePublished":"' + config.SITE["pub_date"] + '","dateModified":"' + config.SITE["pub_date"] + '"'
             ',"author":{"@type":"Organization","name":' + __j(config.SITE["name"] + " Wiki") + '}}')
     bc = _jsonld_breadcrumb(page.get("breadcrumb", []))
     if bc:
@@ -299,12 +309,19 @@ def build_jsonld(page, lang, url):
     return '{"@context":"https://schema.org","@graph":[' + ",".join(graph) + "]}"
 
 
+def build_webpage_jsonld(page, lang, url):
+    """404 等非内容页:用 WebPage 而非 Article。"""
+    return ('{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":'
+            + __j(page["title"]) + ',"url":' + __j(abs_url(url))
+            + ',"inLanguage":' + __j(LANGS[lang]["hreflang"]) + '}]}')
+
+
 def render_head(lang, path, page, rel, is_home=False, include_alternate=True, noindex=False):
     url = "/" + LANGS[lang]["dir"] + site_url(page["path"]).lstrip("/")
     title = page["title"]
     meta = page["meta"]
-    og_type = "website" if is_home else "article"
-    jsonld = build_jsonld(page, lang, url)
+    og_type = "website" if (is_home or noindex) else "article"
+    jsonld = build_jsonld(page, lang, url) if not noindex else build_webpage_jsonld(page, lang, url)
     alt_block = hreflang_links(lang, site_url(page["path"]), is_home) if include_alternate else ""
     robots_meta = '<meta name="robots" content="noindex">\n' if noindex else ""
     _ga = config.SITE.get("ga_id", "")

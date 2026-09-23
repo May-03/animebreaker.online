@@ -15,13 +15,10 @@ SITE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
 
 # 红线词(零命中;按需增删。下载/作弊类词不得出现在页面任何位置)
 REDLINE = {
-    "en": ["download", "cheat", "unblocked", "hack", "apk"],
+    "en": ["download", "cheat", "unblocked", "hack", "apk", "crack"],
     "zh": ["下载", "作弊", "破解", "外挂"],
     "ja": ["ダウンロード", "チート", "ハック", "ハッキング"],
 }
-# 允许保留的占位符(部署前需替换;system-one/two/three 为模板默认栏目占位,替换成真实 slug)
-ALLOWED_PLACEHOLDER = ("[[DOMAIN]]", "[[GA_ID]]", "[[GAME_NAME]]", "[[game-slug]]", "[[DEVELOPER]]", "[[CTA_URL]]",
-                       "[[system-one]]", "[[system-two]]", "[[system-three]]")
 
 errs = []
 
@@ -40,9 +37,14 @@ def main():
     check(os.path.exists(sm_path), "缺少 sitemap.xml")
     sm = open(sm_path, encoding="utf-8").read() if os.path.exists(sm_path) else ""
     sm_urls = set(re.findall(r"<loc>(https?://[^<]+)</loc>", sm))
-    global SITE_DOMAIN
-    m = re.search(r"<loc>(https?://[^/<]+)", sm)
-    SITE_DOMAIN = re.sub(r"^https?://", "", m.group(1)) if m else ""
+    global SITE_DOMAIN, SITE_SCHEME
+    m = re.search(r"<loc>((https?)://[^/<]+)", sm)
+    if m:
+        SITE_DOMAIN = re.sub(r"^https?://", "", m.group(1))
+        SITE_SCHEME = m.group(2)
+    else:
+        SITE_DOMAIN, SITE_SCHEME = "", "https"
+    hl_map = {}  # canonical -> {hreflang hrefs} 用于互认交叉
 
     for p in pages:
         rel = p[len(SITE):].lstrip("/")
@@ -61,17 +63,26 @@ def main():
             ok = SITE_DOMAIN in can.group(1) and can.group(1).rstrip("/").endswith(exp.rstrip("/"))
             check(ok, f"{rel}: canonical 非自指 {can.group(1)}")
 
-        # hreflang:en/zh-CN/ja 三条且目标存在;x-default 仅英文首页
+        # hreflang:精确 en/pt-BR/es 三集合 + 互认;x-default 仅英文首页
         hrefs = dict(re.findall(r'<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"', h))
+        hset = set(hrefs.keys()) - {"x-default"}
+        check(hset == {"en", "pt-BR", "es"}, f"{rel}: hreflang 集合 {hset} (期望 en/pt-BR/es)")
         for hf, url in hrefs.items():
             fp = url.replace("https://", "").replace("http://", "")
             fp = fp[fp.find("/"):].lstrip("/")
             fp = fp if fp.endswith(".html") else fp + "index.html"
             check(os.path.exists(os.path.join(SITE, fp)), f"{rel}: hreflang {hf} -> {url} 目标缺失")
+        if can:
+            hl_map.setdefault(can.group(1), set()).update(u for u in hrefs.values())
         if "x-default" in h and rel != "index.html":
             errs.append(f"{rel}: x-default 只应出现在英文首页")
         if rel == "index.html" and "x-default" not in h:
             errs.append("index.html: 缺 x-default")
+
+        # og:url 与 canonical 一致
+        ogu = re.search(r'<meta property="og:url" content="([^"]+)"', h)
+        check(ogu is not None and can is not None and ogu.group(1) == can.group(1),
+              f"{rel}: og:url ≠ canonical")
 
         # JSON-LD 可解析
         for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', h, re.S):
@@ -89,10 +100,9 @@ def main():
             if re.search(r"\b" + re.escape(w) + r"\b", low):
                 errs.append(f"{rel}: 红线词 '{w}'")
 
-        # 占位残留(白名单外)
-        for ph in set(re.findall(r"\[\[[A-Za-z0-9_-]+\]\]", h)):
-            if ph not in ALLOWED_PLACEHOLDER:
-                errs.append(f"{rel}: 未知占位符 {ph}")
+        # 占位残留(零容忍:本站不允许任何模板占位符/开发残留;TODO/FIXME 大小写敏感防与葡语 "Todo" 误报)
+        for ph in set(re.findall(r"\[\[[A-Za-z0-9_-]+\]\]|\{\{[^}]+\}\}|CTA_URL|\bTODO\b|\bFIXME\b|\blorem\b", h)):
+            errs.append(f"{rel}: 占位/残留 {ph}")
 
         # 站内链接存在(外部域名/占位域名跳过,只检查本站链接)
         for u in re.findall(r'href="(https?://[^"#]+|\.\.?/[^"#]+)"', h):
@@ -122,6 +132,35 @@ def main():
         check(any(x.endswith(u) or x.endswith(u + "index.html") for x in sm_urls),
               f"sitemap 缺 {u}")
     check(len(sm_urls) == len(pages), f"sitemap 条数 {len(sm_urls)} != 页面数 {len(pages)}")
+
+    # hreflang 互认:每个 hreflang 目标页必须回指本页 canonical
+    for can, hrefs in hl_map.items():
+        for h in hrefs:
+            tgt = hl_map.get(h)
+            check(tgt is not None, f"hreflang 互认: {can} -> {h} 目标无对应页")
+            if tgt is not None:
+                check(can in tgt, f"hreflang 互认缺失: {can} 未在 {h} 的反向集合中")
+
+    # 404 页:自指 canonical + noindex
+    p404 = os.path.join(SITE, "404.html")
+    check(os.path.exists(p404), "缺少 404.html")
+    if os.path.exists(p404):
+        h404 = open(p404, encoding="utf-8").read()
+        m404 = re.search(r'<link rel="canonical" href="([^"]+)"', h404)
+        check(m404 is not None and m404.group(1) == SITE_SCHEME + "://" + SITE_DOMAIN + "/404.html",
+              "404 canonical 应为 /404.html")
+        check('content="noindex"' in h404, "404 缺 noindex")
+
+    # robots.txt:Sitemap 行指向本域
+    rb_path = os.path.join(SITE, "robots.txt")
+    check(os.path.exists(rb_path), "缺少 robots.txt")
+    if os.path.exists(rb_path):
+        rb = open(rb_path, encoding="utf-8").read()
+        check(f"Sitemap: {SITE_SCHEME}://{SITE_DOMAIN}/sitemap.xml" in rb, "robots.txt Sitemap 行缺失/域错误")
+        check("Allow: /" in rb, "robots.txt 缺 Allow: /")
+
+    # 部署配置 vercel.json 随产物存在
+    check(os.path.exists(os.path.join(SITE, "vercel.json")), "缺 vercel.json(部署配置未随产物)")
 
     print(f"pages={len(pages)} sitemap={len(sm_urls)} errors={len(errs)}")
     for e in errs[:30]:

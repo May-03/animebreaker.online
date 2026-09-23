@@ -7,8 +7,7 @@
 __pycache__/
 *.pyc
 
-# 构建产物（generate.py 输出，不入库）
-site/site/
+# 生成器源码与产物(产物入库以支持 Git 部署 rootDirectory=site/site;预览目录保持忽略)
 site/site-preview/
 
 # 本地预览服务日志

@@ -155,6 +155,9 @@ def main():
     sitemap = _sitemap(sitemap_urls)
     with open(os.path.join(OUT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(sitemap)
+    # Vercel 配置(随产物部署:trailingSlash 规范目录式 URL)
+    with open(os.path.join(OUT, "vercel.json"), "w", encoding="utf-8") as f:
+        f.write('{\n  "cleanUrls": false,\n  "trailingSlash": true\n}\n')
     # robots
     with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(f"User-agent: *\nAllow: /\n\nSitemap: {abs_url('/sitemap.xml')}\n")
@@ -169,7 +172,7 @@ def main():
 
 def _sitemap(urls):
     items = "".join(
-        f"<url><loc>{abs_url(u)}</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq></url>"
+        f'<url><loc>{abs_url(u)}</loc><lastmod>{config.SITE["pub_date"]}</lastmod><changefreq>weekly</changefreq></url>'
         for u in sorted(urls))
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{items}</urlset>\n'
 
