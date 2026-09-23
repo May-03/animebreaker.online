@@ -1,0 +1,16 @@
+# macOS / 部署工具（同类站惯例：steal-a-chicken、screamandrun.pro）
+.DS_Store
+.vercel
+.env*
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 构建产物（generate.py 输出，不入库）
+site/site/
+site/site-preview/
+
+# 本地预览服务日志
+preview_server.log
+*.log
