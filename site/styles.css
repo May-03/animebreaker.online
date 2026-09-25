@@ -969,3 +969,8 @@ img { max-width: 100%; }
 @media (min-width: 1024px) {
   .footer-cols { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 2rem; }
 }
+
+/* ============ crummyneedle 广告槽(2026-09-15): hero 下方 + 正文中段 ============ */
+.ad-home { display: flex; justify-content: center; align-items: center; min-height: 90px; margin: 1.6rem auto; }
+.ad-home > div { min-height: 90px; }
+.ad-mid { display: flex; justify-content: center; align-items: center; min-height: 250px; margin-block: 2.4rem 1.6rem; }

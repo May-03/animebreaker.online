@@ -17,6 +17,35 @@ OUT = None  # 由 main() 决定输出目录
 
 CONTENT = {"en": content_en, "pt": content_pt, "es": content_es}
 
+# 首页 hero 下方广告槽(crummyneedle container-div 原生容器,防 CLS)
+AD_HOME = """    <div class="ad-home">
+      <script async="async" data-cfasync="false" src="https://crummyneedle.com/9c9d8397530a34d70aa6a13dd9e181d5/invoke.js"></script>
+      <div id="container-9c9d8397530a34d70aa6a13dd9e181d5"></div>
+    </div>
+"""
+
+# 正文中段广告槽(crummyneedle atOptions iframe 300x250,防 CLS) — 插在正文主体与 FAQ 之间
+AD_MID = """    <div class="ad-mid">
+      <script>
+        atOptions = {
+          'key' : 'cc3cbc5fbcfe1d620cf2a39a66cfdfb9',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script src="https://crummyneedle.com/cc3cbc5fbcfe1d620cf2a39a66cfdfb9/invoke.js"></script>
+    </div>
+"""
+
+# 政策页豁免(路径前缀)
+POLICY_PREFIXES = ("about/", "contact/", "privacy", "terms")
+
+
+def _skip_ads(path):
+    return str(path or "").startswith(POLICY_PREFIXES)
+
 # 首页 section 分组时的 eyebrow 映射(可选:按 h2 文本自定义;留空则用默认值)
 EYEBROW = {"en": {}, "pt": {}, "es": {}}
 EYEBROW_DEFAULT = {"en": "Explore", "pt": "Explorar", "es": "Explorar"}
@@ -59,6 +88,7 @@ def render_home_sections(lang, blocks):
 def render_article(lang, page):
     crumbs = page.get("breadcrumb", [])
     nav = config.NAV[lang]
+    ad_mid = "" if _skip_ads(page.get("path")) else AD_MID
     return f"""<main id="main">
 <div class="container-wide doc-top">
 {render_breadcrumbs(crumbs)}
@@ -73,6 +103,7 @@ def render_article(lang, page):
 {render_blocks(page["sections"])}
 </div>
 </div>
+{ad_mid}
 {render_faq(page.get("faq", []))}
 {render_related(page.get("related", []))}
 </main>
@@ -84,6 +115,7 @@ def render_home(lang, page):
     faq_label = "FAQ"
     return f"""<main id="main">
 {hero_section(lang, page)}
+{AD_HOME}
 {gallery_section(lang, page)}
 {render_home_sections(lang, page["sections"])}
 {render_faq(page.get("faq", []), label=faq_label)}
