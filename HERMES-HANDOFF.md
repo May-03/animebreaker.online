@@ -27,7 +27,7 @@ python3 build/generate.py site-preview --domain 127.0.0.1:8792   # 预览版
 - 语言:English(/) + Português-BR(/pt/) + Español(/es/),hreflang 交叉,不含中文
 - 官方 CTA:https://www.roblox.com/games/109928390521457/ (Anime Breaker [🌳CLASS TREE])
 - 开发者署名:HF x Anime Breaker(页脚免责声明;本网为玩家非官方资料站)
-- GA4:**G-WVB8QZW41V**(新站合集 553862240 数据流 15831903618,2026-09-23 建流;已注入 config+重建部署,realtime 验到量)
+- GA4:**G-5E96V6Q5EW**(新站合集 553862240 数据流 15831903618,2026-09-23 建流;已注入 config+重建部署,realtime 验到量)
 - 部署:**2026-09-23 上线完成**。GitHub May-03/animebreaker.online(Git 推送即部署);Vercel 项目
   animebreaker-online prj_SDi6WaIEV0MG67ipla36Vsv7Y7Cy,Git 集成 rootDirectory=site/site,生产分支 main;
   Cloudflare zone 6b64a676c1cb86db29f13bd42bd42e4a(kobe/may NS),A @→76.76.21.21 橙云 + www CNAME,SSL full;
