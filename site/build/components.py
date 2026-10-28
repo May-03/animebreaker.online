@@ -55,11 +55,25 @@ def hreflang_links(lang, path, is_home=False):
 
 # ---------- 正文 blocks 渲染 ----------
 
+def _attr(text):
+    return str(text).replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _td_cells(head, row):
+    """单元格带 data-label:窄屏(<=560px)表格堆叠成卡片,用 label 代替表头。"""
+    cells = []
+    for i, c in enumerate(row):
+        label = _attr(head[i]) if i < len(head) else ""
+        cells.append(f'<td data-label="{label}">{c}</td>')
+    return "".join(cells)
+
+
 def render_table(t):
     head = "".join(f"<th>{c}</th>" for c in t.get("head", []))
-    rows = "".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in t.get("rows", []))
+    rows = "".join("<tr>" + _td_cells(t.get("head", []), r) + "</tr>" for r in t.get("rows", []))
     thead = f"<thead><tr>{head}</tr></thead>" if head else ""
-    return f'<div class="table-wrap"><table>{thead}<tbody>{rows}</tbody></table></div>'
+    cards = ' data-cards="1"' if head else ""
+    return f'<div class="table-wrap"><table{cards}>{thead}<tbody>{rows}</tbody></table></div>'
 
 
 def render_video(v):

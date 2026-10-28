@@ -18,6 +18,7 @@
   --color-text-muted: #8796a6;
   /* 品牌:火焰橙红 hsl(18,75%,41%) */
   --color-brand: #b8461c;
+  --color-brand-table: #c97252; /* 表头/卡片标签:在 --color-surface 上 >=4.5:1 (WCAG AA) */
   --color-brand-strong: #e57a2e;
   --color-brand-ink: #2b0f02;
   /* 强调:魔法夜空蓝 hsl(200,48%,48%) */
@@ -597,7 +598,7 @@ img { max-width: 100%; }
 
 .doc-hero-figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.doc-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-top: 2.5rem; }
+.doc-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.5rem; margin-top: 2.5rem; }
 
 .doc-aside { display: none; }
 
@@ -665,7 +666,7 @@ img { max-width: 100%; }
 
 .prose-content th, .prose-content td { padding: 0.75rem 0.95rem; border-bottom: 1px solid var(--color-border-soft); text-align: left; vertical-align: top; }
 
-.prose-content th { font-family: var(--font-display); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-brand); background: var(--color-surface); }
+.prose-content th { font-family: var(--font-display); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-brand-table); background: var(--color-surface); }
 
 .prose-content tr:last-child td { border-bottom: 0; }
 
@@ -974,3 +975,46 @@ img { max-width: 100%; }
 .ad-home { display: flex; justify-content: center; align-items: center; min-height: 90px; margin: 1.6rem auto; }
 .ad-home > div { min-height: 90px; }
 .ad-mid { display: flex; justify-content: center; align-items: center; min-height: 250px; margin-block: 2.4rem 1.6rem; }
+
+/* ==== 移动端数据表(2026-10-28) ====
+   <=560px 时把带表头的表格堆叠成卡片。原因:.doc-grid 用 1fr 时轨道最小值取
+   内容的 min-content, 4-5 列表格会把整页撑到 400-520px, 手机上整页被缩放/裁切。 */
+@media (max-width: 560px) {
+  .prose-content .table-wrap { border: 0; overflow: visible; max-height: none; }
+  .prose-content table[data-cards],
+  .prose-content table[data-cards] thead,
+  .prose-content table[data-cards] tbody,
+  .prose-content table[data-cards] tr,
+  .prose-content table[data-cards] td { display: block; width: 100%; }
+  .prose-content table[data-cards] thead,
+  .prose-content table[data-head-row] tr:first-child { display: none; }
+  .prose-content table[data-cards] tr {
+    margin-bottom: 0.8rem;
+    padding: 0.25rem 0.15rem;
+    border: 1px solid var(--color-border-soft);
+    border-radius: 0.7rem;
+    background: var(--color-surface);
+  }
+  .prose-content table[data-cards] td {
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px dashed var(--color-border-soft);
+  }
+  .prose-content table[data-cards] tr td:last-child { border-bottom: 0; }
+  .prose-content table[data-cards] td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.15rem;
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-brand-table, var(--color-brand-text, var(--color-brand)));
+  }
+  .prose-content table[data-cards] td:empty { display: none; }
+}
+
+/* 表头对比度:只有定义了 --color-brand-table 的站才改原生 th 规则
+   (不要在这里全局覆盖,否则会顶掉 titanic 的 --color-brand-text) */
+
+/* 过滤/隐藏的行必须真的消失(移动端 tr{display:block} 会盖掉 UA 的 [hidden]) */
+.prose-content tr[hidden] { display: none !important; }
